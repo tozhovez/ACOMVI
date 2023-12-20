@@ -1,0 +1,51 @@
+region: us-east-1
+athenadb_name: aws_glue_home_assignment_serverless
+s3_key_athena: athena-dataset
+s3_key_dst:
+  input: data/input
+  report1: data/report1
+  report2: data/report2
+  report3: data/report3
+  report4: data/report4
+  
+athena_tables:
+  input:
+    table_name: stock_prices
+    table_column:
+      - date string
+      - open double
+      - high double
+      - low double
+      - close double
+      - volume integer
+      - ticker string
+  report1:
+    table_name: average_return
+    table_column:
+      - date
+      - average_return
+  report2:
+    table_name: frequency
+    table_column:
+      - ticker
+      - frequency
+  report3:
+    table_name: stddev
+    table_column:
+      - ticker
+      - standard_deviation
+  report4:
+    table_name: top3_30_day_return_dates
+    table_column:
+      - ticker
+      - date
+glue_role: arn:aws:iam::249751718460:role/service-role/AWSGlueServiceRole-s3crawler
+
+
+job_name: aws-glue-etl-job
+glue_script_python_file_name: etl_glue_job.py
+glue_iam: arn:aws:iam::249751718460:role/service-role/AWSGlueServiceRole-s3crawler
+local_path: etl_glue_job.py
+s3bucket: aws-glue-home-assignment-serverless
+s3_prefix_glue_script: etl-glue-script
+temp_dirbucket: s3://aws-glue-assets-249751718460-us-east-1/temporary/

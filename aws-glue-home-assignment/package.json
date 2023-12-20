@@ -1,0 +1,16 @@
+{
+  "name": "aws-glue-home-assignment",
+  "version": "1.0.0",
+  "description": "Serverless Framework Python AWS Glue Home-Assignment on AWS",
+  "author": "Oksana Tozhovez",
+  "dependencies": {
+    
+    "serverless-deployment-bucket": "^1.6.0",
+    "serverless-glue": "^2.12.1",
+    "serverless-offline": "^13.3.2",
+    "serverless-plugin-include-dependencies": "5.0",
+    "serverless-prune-plugin": "^2.0.2",
+    "serverless-python-requirements": "^6.0.1",
+    "superagent": "^7.1.5"
+  }
+}

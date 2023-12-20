@@ -1,0 +1,9 @@
+node_modules/**
+.serverless/**
+package-lock.json
+*.pyc
+*.pyo
+*.python-version
+*.pytest_cache/**
+*.DS_Store
+.idea/

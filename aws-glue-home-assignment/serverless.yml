@@ -1,0 +1,98 @@
+service: aws-glue-home-assignment
+##frameworkVersion: '2'
+frameworkVersion: "3"
+
+#configValidationMode: warn
+
+#disabledDeprecations: # Disable deprecation logs by their codes. Default is empty.
+  # Deprecation code to disable
+  #- DEP_CODE_1
+  # Disable all deprecation messages
+#  - '*'
+
+
+plugins:
+  - serverless-python-requirements
+  #- serverless-localstack
+  - serverless-glue
+  - serverless-prune-plugin
+  - serverless-offline
+  - serverless-plugin-include-dependencies
+  - serverless-deployment-bucket
+
+
+#useDotenv: true
+
+custom:
+  includeDependencies:
+    enableCaching: true
+  pythonRequirements:
+    slim: true
+    layer: true
+  
+  prune:
+    automatic: true
+    number: 5
+  configfile: ${file(./configs-${opt:stage}.yml)}
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: python3.9
+  # Default stage to be used. Default is "dev"
+  stage: ${opt:stage}
+  # The default profile to use with this service
+  profile: default
+  # Set the default RetentionInDays for a CloudWatch LogGroup
+  logRetentionInDays: 1
+  # Use a custom name for the CloudFormation stack
+  stackName: aws-glue-home-assignment-serverless-${opt:stage}
+  deploymentBucket:
+    # Prevents public access via ACLs or bucket policies. Default is false
+    blockPublicAccess: false 
+    name: "aws-glue-home-assignment-serverless-${opt:stage}-deployment"
+    versioning: false
+  versionFunctions: false
+  # Service wide environment variables
+  environment:
+    CONFIGS_FILE: ./configs-${opt:stage}.yml
+
+Glue:
+  bucketDeploy: ${self:custom.configfile.s3bucket}
+  tempDirBucket: ${self:custom.configfile.temp_dirbucket}
+  jobs:
+    - name: ${self:custom.configfile.job_name}
+      scriptPath: ${self:custom.configfile.glue_script_python_file_name}
+      type: spark
+      glueVersion: python3-4.0
+      role: ${self:custom.configfile.glue_role}
+      MaxConcurrentRuns: 3
+      WorkerType: Standard
+      NumberOfWorkers: 3
+      Timeout: 2880
+      MaxRetries: 1
+      tempDir: true
+      SupportFiles:
+        - local_path: ${self:custom.configfile.local_path}
+          s3_bucket: ${self:custom.configfile.s3bucket}
+          s3_prefix: ${self:custom.configfile.s3_prefix_glue_script}
+          execute_upload: True
+
+
+resources:
+  Resources:
+    GlueDatabase:
+      Type: AWS::Glue::Database
+      Properties:
+        CatalogId: '867098943567'
+        DatabaseInput:
+          Name: ${self:custom.configfile.athenadb_name}
+
+package:
+  excludeDevDependencies: true
+  patterns:
+    - '!.pytest_cache/**'
+    - '!node_modules/**'
+    - '!tests/**'
+    - '!.vscode/**'
+    - '!**.csv'
